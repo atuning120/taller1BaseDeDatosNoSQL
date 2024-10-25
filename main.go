@@ -2,43 +2,105 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"go-API/controllers"
+	services "go-API/services"
 
 	"github.com/gin-gonic/gin"
-
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const url = "mongodb+srv://atuning120:C21387541n@cluster0.ketg2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-
 var mongoClient *mongo.Client
 
 func init() {
-	if err := connect_to_mongodb(); err != nil {
-		log.Fatal("No se pudo conectar a MongoDB")
+	if err := loadEnv(); err != nil {
+		log.Fatal("Error al cargar las variables de entorno:", err)
+	}
+	if err := connectToMongoDB(); err != nil {
+		log.Fatal("No se pudo conectar a MongoDB:", err)
 	}
 }
 
 func main() {
-	r := gin.Default()
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "anashei",
-		})
+	router := gin.Default()
+
+	// Inicializar servicio y controlador
+	db := mongoClient.Database("miBaseDeDatos")
+	cursoService := services.NewCursoService(db)
+	cursoControlador := controllers.NewCursoControlador(cursoService)
+
+	unidadService := services.NewUnidadService(db)
+	unidadControlador := controllers.NewUnidadControlador(unidadService)
+
+	// Definición de rutas
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "Conexión exitosa"})
 	})
-	r.Run()
+
+	//Cursos
+	router.GET("/api/cursos", cursoControlador.ObtenerCursos)
+	router.GET("/api/cursos/:id", cursoControlador.ObtenerCursoPorID)
+	router.POST("/api/cursos", cursoControlador.CrearCurso)
+	router.GET("/api/cursos/:id/unidades", cursoControlador.ObtenerUnidadesPorCurso)
+	router.POST("/api/cursos/:id/unidades", cursoControlador.CrearUnidad)
+
+	//Unidades
+	router.GET("/api/unidades/:id/clases", unidadControlador.ObtenerClasesDeUnidad)
+
+	// Iniciar el servidor
+	go func() {
+		if err := router.Run(); err != nil {
+			log.Fatal("Error al iniciar el servidor:", err)
+		}
+	}()
+
+	// Manejar señal de interrupción
+	gracefulShutdown()
 }
 
-func connect_to_mongodb() error {
+func connectToMongoDB() error {
+	uri := os.Getenv("MONGODB_URI")
+	if uri == "" {
+		return fmt.Errorf("la URI de MongoDB no está configurada")
+	}
+
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	opts := options.Client().ApplyURI(url).SetServerAPIOptions(serverAPI)
+	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
 
 	client, err := mongo.Connect(context.TODO(), opts)
 	if err != nil {
-		panic(err)
+		return err
 	}
-	err = client.Ping(context.TODO(), nil)
+
+	if err = client.Ping(context.TODO(), nil); err != nil {
+		return err
+	}
+
+	log.Println("Conectado a MongoDB")
 	mongoClient = client
-	return err
+	return nil
+}
+
+func loadEnv() error {
+	return godotenv.Load()
+}
+
+func gracefulShutdown() {
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	<-sigChan
+	log.Println("Cerrando la conexión con MongoDB...")
+	if err := mongoClient.Disconnect(context.TODO()); err != nil {
+		log.Fatal("Error al desconectar MongoDB:", err)
+	}
+	log.Println("Conexión con MongoDB cerrada. Apagando servidor.")
+	os.Exit(0)
 }
