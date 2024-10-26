@@ -9,50 +9,42 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// UnidadControlador maneja las rutas relacionadas con las unidades.
 type UnidadControlador struct {
 	servicio *services.UnidadService
 }
 
+// NewUnidadControlador crea un nuevo controlador para las unidades.
 func NewUnidadControlador(servicio *services.UnidadService) *UnidadControlador {
 	return &UnidadControlador{servicio: servicio}
 }
 
-// Ruta para obtener todos los cursos
-func (ctrl *UnidadControlador) ObtenerUnidades(c *gin.Context) {
-	unidades, err := ctrl.servicio.ObtenerUnidades()
+// ObtenerUnidadesPorCurso obtiene las unidades de un curso.
+func (ctrl *UnidadControlador) ObtenerUnidadesPorCurso(c *gin.Context) {
+	id := c.Param("id")
+	unidades, err := ctrl.servicio.ObtenerUnidadesPorCurso(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, unidades)
 }
 
-// ObtenerClasesDeUnidad obtiene las clases de una unidad por su ID.
-func (ctrl *UnidadControlador) ObtenerClasesDeUnidad(c *gin.Context) {
-	id := c.Param("id")
-	unidad, err := ctrl.servicio.ObtenerClasesDeUnidad(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, unidad.Clases)
-}
+// CrearUnidad crea una nueva unidad y la agrega a un curso.
+func (ctrl *UnidadControlador) CrearUnidad(c *gin.Context) {
+	id := c.Param("id") // ID del curso
+	var unidad models.Unidad
 
-// CrearClaseDeUnidad crea una nueva clase en una unidad.
-func (ctrl *UnidadControlador) CrearClaseDeUnidad(c *gin.Context) {
-	id := c.Param("id") // ID de la unidad
-	var clase models.Clase
-
-	if err := c.ShouldBindJSON(&clase); err != nil {
+	if err := c.ShouldBindJSON(&unidad); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err := ctrl.servicio.CrearClaseDeUnidad(id, &clase)
+	result, err := ctrl.servicio.CrearUnidad(id, unidad)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Clase creada exitosamente", "clase_id": clase.ID.Hex()})
+	c.JSON(http.StatusOK, gin.H{"inserted_id": result.InsertedID})
 }

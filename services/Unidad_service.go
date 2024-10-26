@@ -11,88 +11,86 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// CursoService gestiona la lógica relacionada con los cursos.
+// UnidadService maneja la lógica relacionada con las unidades.
 type UnidadService struct {
 	UnidadCollection *mongo.Collection
-	ClaseCollection  *mongo.Collection
+	CursoCollection  *mongo.Collection
 }
 
-// NewCursoService crea un nuevo servicio para los cursos.
+// NewUnidadService crea un nuevo servicio para las unidades.
 func NewUnidadService(db *mongo.Database) *UnidadService {
 	return &UnidadService{
 		UnidadCollection: db.Collection("unidades"),
+		CursoCollection:  db.Collection("cursos"),
 	}
 }
 
-// ObtenerCursos obtiene todos los cursos de la base de datos.
-func (s *UnidadService) ObtenerUnidades() ([]models.Unidad, error) {
-	var unidades []models.Unidad
-	cursor, err := s.UnidadCollection.Find(context.TODO(), bson.M{})
-	if err != nil {
-		return nil, err
-	}
-	if err = cursor.All(context.TODO(), &unidades); err != nil {
-		return nil, err
-	}
-	return unidades, nil
-}
-
-// ObtenerClasesDeUnidad obtiene las clases de una unidad por su ID.
-func (s *UnidadService) ObtenerClasesDeUnidad(id string) (*models.Unidad, error) {
-	objectID, err := primitive.ObjectIDFromHex(id) // Convertir el ID a ObjectID
+// ObtenerUnidadesPorCurso obtiene todas las unidades asociadas a un curso.
+func (s *UnidadService) ObtenerUnidadesPorCurso(id string) ([]models.Unidad, error) {
+	objectID, err := primitive.ObjectIDFromHex(id) // Convertir a ObjectID
 	if err != nil {
 		return nil, errors.New("ID inválido")
 	}
 
-	var unidad models.Unidad
-	err = s.UnidadCollection.FindOne(context.TODO(), bson.M{"_id": objectID}).Decode(&unidad)
+	// Obtener el curso por su ID
+	var curso models.Curso
+	err = s.CursoCollection.FindOne(context.TODO(), bson.M{"_id": objectID}).Decode(&curso)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, errors.New("unidad no encontrada")
+			return nil, errors.New("curso no encontrado")
 		}
 		return nil, err
 	}
 
-	return &unidad, nil
+	// Buscar las unidades cuyo ID esté en la lista del curso
+	cursor, err := s.UnidadCollection.Find(context.TODO(), bson.M{"_id": bson.M{"$in": curso.Unidades}})
+	if err != nil {
+		return nil, err
+	}
+
+	var unidades []models.Unidad
+	if err = cursor.All(context.TODO(), &unidades); err != nil {
+		return nil, err
+	}
+
+	return unidades, nil
 }
 
-// CrearClaseDeUnidad crea una clase y agrega su ID a la lista de clases de la unidad.
-func (s *UnidadService) CrearClaseDeUnidad(unidadID string, clase *models.Clase) error {
-	// Convertir el ID de la unidad a ObjectID
-	objectID, err := primitive.ObjectIDFromHex(unidadID)
+// CrearUnidad crea una nueva unidad y la asocia a un curso.
+func (s *UnidadService) CrearUnidad(id string, unidad models.Unidad) (*mongo.InsertOneResult, error) {
+	objectID, err := primitive.ObjectIDFromHex(id) // Convertir a ObjectID
 	if err != nil {
-		return errors.New("ID inválido")
+		return nil, errors.New("ID inválido")
 	}
 
-	// Inicializar el ObjectID para la nueva clase
-	clase.ID = primitive.NewObjectID()
-	clase.UnidadID = objectID
-
-	// Insertar la clase en la colección de clases
-	_, err = s.ClaseCollection.InsertOne(context.TODO(), clase)
+	// Verificar si el curso existe
+	var curso models.Curso
+	err = s.CursoCollection.FindOne(context.TODO(), bson.M{"_id": objectID}).Decode(&curso)
 	if err != nil {
-		return err
+		if err == mongo.ErrNoDocuments {
+			return nil, errors.New("curso no encontrado")
+		}
+		return nil, err
 	}
 
-	// Verificar si la lista de clases está inicializada (en MongoDB)
-	_, err = s.UnidadCollection.UpdateOne(
-		context.TODO(),
-		bson.M{"_id": objectID, "clases": bson.M{"$exists": false}}, // Verificar si no existe
-		bson.M{"$set": bson.M{"clases": []primitive.ObjectID{}}},    // Inicializar si es necesario
-	)
+	// Crear la nueva unidad
+	nuevaUnidad := models.NewUnidad(unidad.Nombre)
+
+	// Insertar la unidad en la colección de unidades
+	result, err := s.UnidadCollection.InsertOne(context.TODO(), nuevaUnidad)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	// Agregar el ID de la clase a la lista de clases de la unidad
-	_, err = s.UnidadCollection.UpdateOne(
+	// Agregar el ID de la nueva unidad al curso
+	_, err = s.CursoCollection.UpdateOne(
 		context.TODO(),
 		bson.M{"_id": objectID},
-		bson.M{"$push": bson.M{"clases": clase.ID}},
+		bson.M{"$push": bson.M{"unidades": result.InsertedID}},
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return result, nil
 }

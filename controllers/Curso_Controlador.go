@@ -65,35 +65,3 @@ func (ctrl *CursoControlador) ObtenerCursoPorID(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, curso)
 }
-
-// Ruta para obtener las unidades de un curso
-func (ctrl *CursoControlador) ObtenerUnidadesPorCurso(c *gin.Context) {
-	id := c.Param("id")
-	unidades, err := ctrl.servicio.ObtenerUnidadesPorCurso(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, unidades)
-}
-
-// Ruta para crear una unidad en un curso
-// CrearUnidad crea una nueva unidad y la agrega a un curso.
-func (ctrl *CursoControlador) CrearUnidad(c *gin.Context) {
-	id := c.Param("id") // ID del curso
-	var unidad models.Unidad
-
-	// Verificar si los datos enviados son correctos
-	if err := c.ShouldBindJSON(&unidad); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	result, err := ctrl.servicio.CrearUnidad(id, unidad)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"inserted_id": result.InsertedID})
-}

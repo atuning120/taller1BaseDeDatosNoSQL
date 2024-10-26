@@ -39,6 +39,9 @@ func main() {
 	unidadService := services.NewUnidadService(db)
 	unidadControlador := controllers.NewUnidadControlador(unidadService)
 
+	claseService := services.NewClaseService(db)
+	claseControlador := controllers.NewClaseControlador(claseService)
+
 	// Definición de rutas
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "Conexión exitosa"})
@@ -48,12 +51,14 @@ func main() {
 	router.GET("/api/cursos", cursoControlador.ObtenerCursos)
 	router.GET("/api/cursos/:id", cursoControlador.ObtenerCursoPorID)
 	router.POST("/api/cursos", cursoControlador.CrearCurso)
-	router.GET("/api/cursos/:id/unidades", cursoControlador.ObtenerUnidadesPorCurso)
-	router.POST("/api/cursos/:id/unidades", cursoControlador.CrearUnidad)
 
 	//Unidades
-	router.GET("/api/unidades/:id/clases", unidadControlador.ObtenerClasesDeUnidad)
-	router.POST("/api/unidades/:id/clases", unidadControlador.CrearClaseDeUnidad)
+	router.GET("/api/cursos/:id/unidades", unidadControlador.ObtenerUnidadesPorCurso)
+	router.POST("/api/cursos/:id/unidades", unidadControlador.CrearUnidad)
+
+	//Clases
+	router.GET("/api/unidades/:id/clases", claseControlador.ObtenerClasesPorUnidad)
+	router.POST("/api/unidades/:id/clases", claseControlador.CrearClaseParaUnidad)
 
 	// Iniciar el servidor
 	go func() {
