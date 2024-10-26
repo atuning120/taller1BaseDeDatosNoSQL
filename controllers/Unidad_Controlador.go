@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 
+	"go-API/models"
 	"go-API/services"
 
 	"github.com/gin-gonic/gin"
@@ -35,4 +36,23 @@ func (ctrl *UnidadControlador) ObtenerClasesDeUnidad(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, unidad.Clases)
+}
+
+// CrearClaseDeUnidad crea una nueva clase en una unidad.
+func (ctrl *UnidadControlador) CrearClaseDeUnidad(c *gin.Context) {
+	id := c.Param("id") // ID de la unidad
+	var clase models.Clase
+
+	if err := c.ShouldBindJSON(&clase); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := ctrl.servicio.CrearClaseDeUnidad(id, &clase)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Clase creada exitosamente", "clase_id": clase.ID.Hex()})
 }

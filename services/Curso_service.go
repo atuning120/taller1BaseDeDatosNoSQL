@@ -13,13 +13,15 @@ import (
 
 // CursoService gestiona la lógica relacionada con los cursos.
 type CursoService struct {
-	CursoCollection *mongo.Collection
+	CursoCollection  *mongo.Collection
+	UnidadCollection *mongo.Collection
 }
 
 // NewCursoService crea un nuevo servicio para los cursos.
 func NewCursoService(db *mongo.Database) *CursoService {
 	return &CursoService{
-		CursoCollection: db.Collection("cursos"),
+		CursoCollection:  db.Collection("cursos"),
+		UnidadCollection: db.Collection("unidades"),
 	}
 }
 
@@ -38,6 +40,14 @@ func (s *CursoService) ObtenerCursos() ([]models.Curso, error) {
 
 // CrearCurso agrega un nuevo curso a la base de datos.
 func (s *CursoService) CrearCurso(curso models.Curso) (*mongo.InsertOneResult, error) {
+	// Verificar si las listas son nulas e inicializarlas como vacías
+	if curso.Unidades == nil {
+		curso.Unidades = []primitive.ObjectID{}
+	}
+	if curso.Comentarios == nil {
+		curso.Comentarios = []primitive.ObjectID{}
+	}
+
 	return s.CursoCollection.InsertOne(context.TODO(), curso)
 }
 
@@ -88,7 +98,7 @@ func (s *CursoService) ObtenerUnidadesPorCurso(id string) ([]models.Unidad, erro
 	return unidades, nil
 }
 
-// CrearUnidad crea una nueva unidad en un curso.
+// CrearUnidad crea una nueva unidad y la agrega al curso.
 func (s *CursoService) CrearUnidad(id string, unidad models.Unidad) (*mongo.InsertOneResult, error) {
 	objectID, err := primitive.ObjectIDFromHex(id) // Convertir a ObjectID
 	if err != nil {
@@ -105,17 +115,21 @@ func (s *CursoService) CrearUnidad(id string, unidad models.Unidad) (*mongo.Inse
 		return nil, err
 	}
 
-	// Asignar el ID del curso a la unidad
-	unidad.IDcurso = objectID
+	// Crear una nueva unidad usando el constructor
+	nuevaUnidad := models.NewUnidad(unidad.Nombre)
 
-	// Insertar la unidad
-	result, err := s.CursoCollection.Database().Collection("unidades").InsertOne(context.TODO(), unidad)
+	// Insertar la nueva unidad en la colección de unidades
+	result, err := s.UnidadCollection.InsertOne(context.TODO(), nuevaUnidad)
 	if err != nil {
 		return nil, err
 	}
 
-	// Actualizar el curso con la nueva unidad
-	_, err = s.CursoCollection.UpdateOne(context.TODO(), bson.M{"_id": objectID}, bson.M{"$push": bson.M{"unidades": result.InsertedID}})
+	// Agregar el ID de la unidad al curso
+	_, err = s.CursoCollection.UpdateOne(
+		context.TODO(),
+		bson.M{"_id": objectID},
+		bson.M{"$push": bson.M{"unidades": result.InsertedID}},
+	)
 	if err != nil {
 		return nil, err
 	}

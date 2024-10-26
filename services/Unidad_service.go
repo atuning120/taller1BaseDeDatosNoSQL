@@ -14,6 +14,7 @@ import (
 // CursoService gestiona la lógica relacionada con los cursos.
 type UnidadService struct {
 	UnidadCollection *mongo.Collection
+	ClaseCollection  *mongo.Collection
 }
 
 // NewCursoService crea un nuevo servicio para los cursos.
@@ -53,4 +54,45 @@ func (s *UnidadService) ObtenerClasesDeUnidad(id string) (*models.Unidad, error)
 	}
 
 	return &unidad, nil
+}
+
+// CrearClaseDeUnidad crea una clase y agrega su ID a la lista de clases de la unidad.
+func (s *UnidadService) CrearClaseDeUnidad(unidadID string, clase *models.Clase) error {
+	// Convertir el ID de la unidad a ObjectID
+	objectID, err := primitive.ObjectIDFromHex(unidadID)
+	if err != nil {
+		return errors.New("ID inválido")
+	}
+
+	// Inicializar el ObjectID para la nueva clase
+	clase.ID = primitive.NewObjectID()
+	clase.UnidadID = objectID
+
+	// Insertar la clase en la colección de clases
+	_, err = s.ClaseCollection.InsertOne(context.TODO(), clase)
+	if err != nil {
+		return err
+	}
+
+	// Verificar si la lista de clases está inicializada (en MongoDB)
+	_, err = s.UnidadCollection.UpdateOne(
+		context.TODO(),
+		bson.M{"_id": objectID, "clases": bson.M{"$exists": false}}, // Verificar si no existe
+		bson.M{"$set": bson.M{"clases": []primitive.ObjectID{}}},    // Inicializar si es necesario
+	)
+	if err != nil {
+		return err
+	}
+
+	// Agregar el ID de la clase a la lista de clases de la unidad
+	_, err = s.UnidadCollection.UpdateOne(
+		context.TODO(),
+		bson.M{"_id": objectID},
+		bson.M{"$push": bson.M{"clases": clase.ID}},
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

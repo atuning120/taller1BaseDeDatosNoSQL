@@ -28,18 +28,30 @@ func (ctrl *CursoControlador) ObtenerCursos(c *gin.Context) {
 }
 
 // Ruta para crear un curso
+// CrearCurso crea un nuevo curso.
 func (ctrl *CursoControlador) CrearCurso(c *gin.Context) {
-	var curso models.Curso
-	if err := c.ShouldBindJSON(&curso); err != nil {
+	var request struct {
+		Nombre      string  `json:"nombre"`
+		Descripcion string  `json:"descripcion"`
+		Imagen      string  `json:"imagen_url"`
+		Valoracion  float32 `json:"valoracion"`
+	}
+
+	// Verificar si los datos enviados son correctos
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Crear un nuevo curso usando el constructor
+	curso := models.NewCurso(request.Nombre, request.Descripcion, request.Imagen, request.Valoracion)
 
 	result, err := ctrl.servicio.CrearCurso(curso)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"inserted_id": result.InsertedID})
 }
 
@@ -66,9 +78,12 @@ func (ctrl *CursoControlador) ObtenerUnidadesPorCurso(c *gin.Context) {
 }
 
 // Ruta para crear una unidad en un curso
+// CrearUnidad crea una nueva unidad y la agrega a un curso.
 func (ctrl *CursoControlador) CrearUnidad(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("id") // ID del curso
 	var unidad models.Unidad
+
+	// Verificar si los datos enviados son correctos
 	if err := c.ShouldBindJSON(&unidad); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -79,5 +94,6 @@ func (ctrl *CursoControlador) CrearUnidad(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"inserted_id": result.InsertedID})
 }

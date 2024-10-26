@@ -53,6 +53,7 @@ func main() {
 
 	//Unidades
 	router.GET("/api/unidades/:id/clases", unidadControlador.ObtenerClasesDeUnidad)
+	router.POST("/api/unidades/:id/clases", unidadControlador.CrearClaseDeUnidad)
 
 	// Iniciar el servidor
 	go func() {
