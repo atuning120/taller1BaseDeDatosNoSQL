@@ -45,6 +45,9 @@ func main() {
 	comentarioService := services.NewComentarioService(db)
 	comentarioControlador := controllers.NewComentarioControlador(comentarioService)
 
+	usuarioService := services.NewUsuarioService(db)
+	usuarioControlador := controllers.NewUsuarioControlador(usuarioService)
+
 	// Definición de rutas
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "Conexión exitosa"})
@@ -68,6 +71,11 @@ func main() {
 	router.POST("/api/clases/:id/comentarios", comentarioControlador.CrearComentarioParaClase)
 
 	//Usuarios
+	router.GET("/api/usuarios", usuarioControlador.ObtenerUsuarios)
+	router.POST("/api/usuarios", usuarioControlador.CrearUsuario)
+	router.GET("/api/usuarios/:id", usuarioControlador.ObtenerUsuarioPorID)
+	router.POST("/api/usuarios/inscripcion", usuarioControlador.InscribirseACurso)
+	router.GET("/api/usuarios/:id/cursos", usuarioControlador.ObtenerCursosInscritos)
 
 	// Iniciar el servidor
 	go func() {
