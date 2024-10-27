@@ -17,7 +17,16 @@ func NewCursoControlador(servicio *services.CursoService) *CursoControlador {
 	return &CursoControlador{servicio: servicio}
 }
 
-// Ruta para obtener todos los cursos
+// ObtenerCursos devuelve todos los cursos disponibles.
+// @Summary Devuelve todos los cursos
+// @Description Devuelve todos los cursos disponibles
+// @Tags Obtener cursos
+// @Accept json
+// @Produce json
+// @Success 200 {array} response.CursoResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /api/cursos [get]
 func (ctrl *CursoControlador) ObtenerCursos(c *gin.Context) {
 	cursos, err := ctrl.servicio.ObtenerCursos()
 	if err != nil {
@@ -27,7 +36,6 @@ func (ctrl *CursoControlador) ObtenerCursos(c *gin.Context) {
 	c.JSON(http.StatusOK, cursos)
 }
 
-// Ruta para crear un curso
 // CrearCurso crea un nuevo curso.
 func (ctrl *CursoControlador) CrearCurso(c *gin.Context) {
 	var request struct {

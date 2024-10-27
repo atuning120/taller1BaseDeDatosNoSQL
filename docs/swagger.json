@@ -1,0 +1,98 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Esta es una API para gestionar cursos y usuarios.",
+        "title": "API de Cursos y Usuarios",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/api/cursos": {
+            "get": {
+                "description": "Devuelve todos los cursos disponibles",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Obtener cursos"
+                ],
+                "summary": "Devuelve todos los cursos",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.CursoResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "response.CursoResponse": {
+            "type": "object",
+            "properties": {
+                "cant_usuarios": {
+                    "type": "integer"
+                },
+                "comentarios": {
+                    "description": "IDs de los comentarios",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "descripcion": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "imagen_url": {
+                    "type": "string"
+                },
+                "nombre": {
+                    "type": "string"
+                },
+                "unidades": {
+                    "description": "IDs de las unidades",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "valoracion": {
+                    "type": "number"
+                }
+            }
+        },
+        "response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

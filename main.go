@@ -9,13 +9,23 @@ import (
 	"syscall"
 
 	"go-API/controllers"
-	services "go-API/services"
+	_ "go-API/docs" // Importar los documentos de Swagger
+	"go-API/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+// @title API de Cursos y Usuarios
+// @version 1.0
+// @description Esta es una API para gestionar cursos y usuarios.
+
+// @host localhost:8080
+// @BasePath /
 
 var mongoClient *mongo.Client
 
@@ -31,7 +41,10 @@ func init() {
 func main() {
 	router := gin.Default()
 
-	// Inicializar servicio y controlador
+	// Enlace con Swagger
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// Inicializar servicios y controladores
 	db := mongoClient.Database("miBaseDeDatos")
 	cursoService := services.NewCursoService(db)
 	cursoControlador := controllers.NewCursoControlador(cursoService)
@@ -42,41 +55,31 @@ func main() {
 	claseService := services.NewClaseService(db)
 	claseControlador := controllers.NewClaseControlador(claseService)
 
-	comentarioService := services.NewComentarioService(db)
-	comentarioControlador := controllers.NewComentarioControlador(comentarioService)
-
 	usuarioService := services.NewUsuarioService(db)
 	usuarioControlador := controllers.NewUsuarioControlador(usuarioService)
 
-	// Definición de rutas
+	// Rutas de la API
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "Conexión exitosa"})
 	})
 
-	//Cursos
+	// Cursos
 	router.GET("/api/cursos", cursoControlador.ObtenerCursos)
 	router.GET("/api/cursos/:id", cursoControlador.ObtenerCursoPorID)
-	router.POST("/api/cursos", cursoControlador.CrearCurso)
 	router.PATCH("/api/cursos/:id/valoracion", cursoControlador.ActualizarValoracion)
+	router.POST("/api/cursos", cursoControlador.CrearCurso)
 
-	//Unidades
+	// Unidades
 	router.GET("/api/cursos/:id/unidades", unidadControlador.ObtenerUnidadesPorCurso)
 	router.POST("/api/cursos/:id/unidades", unidadControlador.CrearUnidad)
 
-	//Clases
+	// Clases
 	router.GET("/api/unidades/:id/clases", claseControlador.ObtenerClasesPorUnidad)
 	router.POST("/api/unidades/:id/clases", claseControlador.CrearClaseParaUnidad)
 
-	//Comentarios
-	router.GET("/api/clases/:id/comentarios", comentarioControlador.ObtenerComentariosPorClase)
-	router.POST("/api/clases/:id/comentarios", comentarioControlador.CrearComentarioParaClase)
-
-	//Usuarios
-	router.GET("/api/usuarios", usuarioControlador.ObtenerUsuarios)
+	// Usuarios
 	router.POST("/api/usuarios", usuarioControlador.CrearUsuario)
-	router.GET("/api/usuarios/:id", usuarioControlador.ObtenerUsuarioPorID)
 	router.POST("/api/usuarios/inscripcion", usuarioControlador.InscribirseACurso)
-	router.GET("/api/usuarios/:id/cursos", usuarioControlador.ObtenerCursosInscritos)
 
 	// Iniciar el servidor
 	go func() {
@@ -85,7 +88,6 @@ func main() {
 		}
 	}()
 
-	// Manejar señal de interrupción
 	gracefulShutdown()
 }
 
