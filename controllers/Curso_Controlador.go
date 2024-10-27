@@ -65,3 +65,28 @@ func (ctrl *CursoControlador) ObtenerCursoPorID(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, curso)
 }
+
+// ActualizarValoracion actualiza la valoración promedio de un curso.
+func (cc *CursoControlador) ActualizarValoracion(c *gin.Context) {
+	id := c.Param("id") // ID del curso
+
+	// Estructura para recibir la nueva valoración
+	var body struct {
+		Valoracion float32 `json:"valoracion"`
+	}
+
+	// Validar el cuerpo de la solicitud
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos: " + err.Error()})
+		return
+	}
+
+	// Llamar al servicio para actualizar la valoración
+	err := cc.servicio.ActualizarValoracion(id, body.Valoracion)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Valoración actualizada exitosamente"})
+}

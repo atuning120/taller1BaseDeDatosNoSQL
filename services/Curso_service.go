@@ -69,3 +69,24 @@ func (s *CursoService) ObtenerCursoPorID(id string) (*models.Curso, error) {
 
 	return &curso, nil
 }
+
+// ActualizarValoracion actualiza la valoración promedio de un curso.
+func (s *CursoService) ActualizarValoracion(id string, valoracion float32) error {
+	// Convertir el ID a ObjectID
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.New("ID inválido")
+	}
+
+	// Actualizar la valoración del curso
+	_, err = s.CursoCollection.UpdateOne(
+		context.TODO(),
+		bson.M{"_id": objectID},
+		bson.M{"$set": bson.M{"valoracion": valoracion}},
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

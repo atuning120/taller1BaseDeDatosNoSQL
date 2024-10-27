@@ -57,6 +57,7 @@ func main() {
 	router.GET("/api/cursos", cursoControlador.ObtenerCursos)
 	router.GET("/api/cursos/:id", cursoControlador.ObtenerCursoPorID)
 	router.POST("/api/cursos", cursoControlador.CrearCurso)
+	router.PATCH("/api/cursos/:id/valoracion", cursoControlador.ActualizarValoracion)
 
 	//Unidades
 	router.GET("/api/cursos/:id/unidades", unidadControlador.ObtenerUnidadesPorCurso)
