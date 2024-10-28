@@ -1,5 +1,28 @@
 basePath: /
 definitions:
+  request.CreateCursoRequest:
+    properties:
+      descripcion:
+        type: string
+      imagen_url:
+        type: string
+      nombre:
+        type: string
+    required:
+    - nombre
+    type: object
+  request.UpdateValoracionRequest:
+    properties:
+      valoracion:
+        type: number
+    required:
+    - valoracion
+    type: object
+  response.CrearCurso:
+    properties:
+      inserted_id:
+        type: string
+    type: object
   response.CursoResponse:
     properties:
       cant_usuarios:
@@ -29,6 +52,13 @@ definitions:
     properties:
       message:
         type: string
+    type: object
+  response.UpdateValoracionResponse:
+    properties:
+      message:
+        type: string
+      valoracion_actualizada:
+        type: number
     type: object
 host: localhost:8080
 info:
@@ -61,5 +91,98 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Devuelve todos los cursos
       tags:
-      - Obtener cursos
+      - Cursos
+    post:
+      consumes:
+      - application/json
+      description: Agrega un curso a la base de datos
+      parameters:
+      - description: Curso a crear
+        in: body
+        name: curso
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateCursoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CrearCurso'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Crear un curso
+      tags:
+      - Cursos
+  /api/cursos/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Devuelve un curso en específico dado su ID
+      parameters:
+      - description: ID del curso
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CursoResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Devuelve un curso según su ID
+      tags:
+      - Cursos
+  /api/cursos/{id}/valoracion:
+    patch:
+      consumes:
+      - application/json
+      description: Actualiza la valoración de un curso según la nueva valoración proporcionada
+      parameters:
+      - description: ID del curso
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Nueva valoración del curso
+        in: body
+        name: valoracion
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateValoracionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UpdateValoracionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Actualiza la valoración de un curso
+      tags:
+      - Cursos
 swagger: "2.0"

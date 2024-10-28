@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Obtener cursos"
+                    "Cursos"
                 ],
                 "summary": "Devuelve todos los cursos",
                 "responses": {
@@ -51,10 +51,187 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "description": "Agrega un curso a la base de datos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cursos"
+                ],
+                "summary": "Crear un curso",
+                "parameters": [
+                    {
+                        "description": "Curso a crear",
+                        "name": "curso",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateCursoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CrearCurso"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cursos/{id}": {
+            "get": {
+                "description": "Devuelve un curso en específico dado su ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cursos"
+                ],
+                "summary": "Devuelve un curso según su ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID del curso",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CursoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cursos/{id}/valoracion": {
+            "patch": {
+                "description": "Actualiza la valoración de un curso según la nueva valoración proporcionada",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cursos"
+                ],
+                "summary": "Actualiza la valoración de un curso",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID del curso",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Nueva valoración del curso",
+                        "name": "valoracion",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateValoracionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdateValoracionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
             }
         }
     },
     "definitions": {
+        "request.CreateCursoRequest": {
+            "type": "object",
+            "required": [
+                "nombre"
+            ],
+            "properties": {
+                "descripcion": {
+                    "type": "string"
+                },
+                "imagen_url": {
+                    "type": "string"
+                },
+                "nombre": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateValoracionRequest": {
+            "type": "object",
+            "required": [
+                "valoracion"
+            ],
+            "properties": {
+                "valoracion": {
+                    "type": "number"
+                }
+            }
+        },
+        "response.CrearCurso": {
+            "type": "object",
+            "properties": {
+                "inserted_id": {
+                    "type": "string"
+                }
+            }
+        },
         "response.CursoResponse": {
             "type": "object",
             "properties": {
@@ -97,6 +274,17 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "response.UpdateValoracionResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "valoracion_actualizada": {
+                    "type": "number"
                 }
             }
         }

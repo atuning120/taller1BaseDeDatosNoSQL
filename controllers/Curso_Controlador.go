@@ -20,7 +20,7 @@ func NewCursoControlador(servicio *services.CursoService) *CursoControlador {
 // ObtenerCursos devuelve todos los cursos disponibles.
 // @Summary Devuelve todos los cursos
 // @Description Devuelve todos los cursos disponibles
-// @Tags Obtener cursos
+// @Tags Cursos
 // @Accept json
 // @Produce json
 // @Success 200 {array} response.CursoResponse
@@ -37,6 +37,15 @@ func (ctrl *CursoControlador) ObtenerCursos(c *gin.Context) {
 }
 
 // CrearCurso crea un nuevo curso.
+// @Summary Crear un curso
+// @Description Agrega un curso a la base de datos
+// @Tags Cursos
+// @Param curso body request.CreateCursoRequest true "Curso a crear"
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.CrearCurso
+// @Failure 500 {object} response.ErrorResponse
+// @Router /api/cursos [post]
 func (ctrl *CursoControlador) CrearCurso(c *gin.Context) {
 	var request struct {
 		Nombre      string  `json:"nombre"`
@@ -63,7 +72,18 @@ func (ctrl *CursoControlador) CrearCurso(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"inserted_id": result.InsertedID})
 }
 
-// Ruta para obtener un curso por su ID
+// ObtenerCursoPorID devuelve un curso específico por su ID.
+// @Summary Devuelve un curso según su ID
+// @Description Devuelve un curso en específico dado su ID
+// @Tags Cursos
+// @Accept json
+// @Produce json
+// @Param id path string true "ID del curso"
+// @Success 200 {object} response.CursoResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /api/cursos/{id} [get]
 func (ctrl *CursoControlador) ObtenerCursoPorID(c *gin.Context) {
 	id := c.Param("id")
 	curso, err := ctrl.servicio.ObtenerCursoPorID(id)
@@ -75,6 +95,17 @@ func (ctrl *CursoControlador) ObtenerCursoPorID(c *gin.Context) {
 }
 
 // ActualizarValoracion actualiza la valoración promedio de un curso.
+// @Summary Actualiza la valoración de un curso
+// @Description Actualiza la valoración de un curso según la nueva valoración proporcionada
+// @Tags Cursos
+// @Accept json
+// @Produce json
+// @Param id path string true "ID del curso"
+// @Param valoracion body request.UpdateValoracionRequest true "Nueva valoración del curso"
+// @Success 200 {object} response.UpdateValoracionResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /api/cursos/{id}/valoracion [patch]
 func (cc *CursoControlador) ActualizarValoracion(c *gin.Context) {
 	id := c.Param("id") // ID del curso
 

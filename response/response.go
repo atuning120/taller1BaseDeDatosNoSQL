@@ -1,6 +1,8 @@
 package response
 
-import "go-API/models"
+import (
+	"go-API/models"
+)
 
 // CursoResponse define la estructura de la respuesta para un curso.
 type CursoResponse struct {
@@ -41,4 +43,15 @@ func NewCursoResponse(curso models.Curso) CursoResponse {
 // ErrorResponse define la estructura de las respuestas de error.
 type ErrorResponse struct {
 	Message string `json:"message"`
+}
+
+// CrearCurso define la respuesta cuando se crea un curso exitosamente.
+type CrearCurso struct {
+	InsertedID string `json:"inserted_id"`
+}
+
+// UpdateValoracionResponse define la estructura de la respuesta para la actualización de la valoración.
+type UpdateValoracionResponse struct {
+	Message               string  `json:"message"`
+	ValoracionActualizada float32 `json:"valoracion_actualizada"`
 }
