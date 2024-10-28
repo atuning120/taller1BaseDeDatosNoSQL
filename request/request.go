@@ -11,3 +11,8 @@ type CreateCursoRequest struct {
 type UpdateValoracionRequest struct {
 	Valoracion float32 `json:"valoracion" binding:"required"`
 }
+
+// CreateUnidadRequest define el cuerpo de la solicitud para crear una unidad.
+type CreateUnidadRequest struct {
+	Nombre string `json:"nombre" binding:"required"`
+}

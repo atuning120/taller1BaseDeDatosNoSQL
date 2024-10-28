@@ -11,6 +11,13 @@ definitions:
     required:
     - nombre
     type: object
+  request.CreateUnidadRequest:
+    properties:
+      nombre:
+        type: string
+    required:
+    - nombre
+    type: object
   request.UpdateValoracionRequest:
     properties:
       valoracion:
@@ -19,6 +26,11 @@ definitions:
     - valoracion
     type: object
   response.CrearCurso:
+    properties:
+      inserted_id:
+        type: string
+    type: object
+  response.CrearUnidad:
     properties:
       inserted_id:
         type: string
@@ -51,6 +63,20 @@ definitions:
   response.ErrorResponse:
     properties:
       message:
+        type: string
+    type: object
+  response.UnidadResponse:
+    properties:
+      clases:
+        description: IDs de las clases en formato string
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      idcurso:
+        type: string
+      nombre:
         type: string
     type: object
   response.UpdateValoracionResponse:
@@ -117,11 +143,11 @@ paths:
       summary: Crear un curso
       tags:
       - Cursos
-  /api/cursos/{id}:
+  /api/cursos/{id}/unidades:
     get:
       consumes:
       - application/json
-      description: Devuelve un curso en específico dado su ID
+      description: Devuelve una unidades de un curso en específico dado su ID
       parameters:
       - description: ID del curso
         in: path
@@ -147,9 +173,39 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: Devuelve un curso según su ID
+      summary: Devuelve unidades de un curso
       tags:
-      - Cursos
+      - Unidades
+    post:
+      consumes:
+      - application/json
+      description: agregar una unidad a un curso
+      parameters:
+      - description: Unidad a crear
+        in: body
+        name: unidad
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateUnidadRequest'
+      - description: ID del curso
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CrearUnidad'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Crear unidad
+      tags:
+      - Unidades
   /api/cursos/{id}/valoracion:
     patch:
       consumes:

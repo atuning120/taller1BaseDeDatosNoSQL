@@ -91,9 +91,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/cursos/{id}": {
+        "/api/cursos/{id}/unidades": {
             "get": {
-                "description": "Devuelve un curso en específico dado su ID",
+                "description": "Devuelve una unidades de un curso en específico dado su ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -101,9 +101,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Cursos"
+                    "Unidades"
                 ],
-                "summary": "Devuelve un curso según su ID",
+                "summary": "Devuelve unidades de un curso",
                 "parameters": [
                     {
                         "type": "string",
@@ -130,6 +130,51 @@ const docTemplate = `{
                         "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "agregar una unidad a un curso",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Unidades"
+                ],
+                "summary": "Crear unidad",
+                "parameters": [
+                    {
+                        "description": "Unidad a crear",
+                        "name": "unidad",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateUnidadRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID del curso",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CrearUnidad"
                         }
                     },
                     "500": {
@@ -213,6 +258,17 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CreateUnidadRequest": {
+            "type": "object",
+            "required": [
+                "nombre"
+            ],
+            "properties": {
+                "nombre": {
+                    "type": "string"
+                }
+            }
+        },
         "request.UpdateValoracionRequest": {
             "type": "object",
             "required": [
@@ -225,6 +281,14 @@ const docTemplate = `{
             }
         },
         "response.CrearCurso": {
+            "type": "object",
+            "properties": {
+                "inserted_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.CrearUnidad": {
             "type": "object",
             "properties": {
                 "inserted_id": {
@@ -273,6 +337,27 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.UnidadResponse": {
+            "type": "object",
+            "properties": {
+                "clases": {
+                    "description": "IDs de las clases en formato string",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "idcurso": {
+                    "type": "string"
+                },
+                "nombre": {
                     "type": "string"
                 }
             }

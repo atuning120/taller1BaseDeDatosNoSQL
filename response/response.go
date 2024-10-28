@@ -55,3 +55,31 @@ type UpdateValoracionResponse struct {
 	Message               string  `json:"message"`
 	ValoracionActualizada float32 `json:"valoracion_actualizada"`
 }
+
+// UnidadResponse define la estructura de la respuesta para una unidad.
+type UnidadResponse struct {
+	ID      string   `json:"id"`
+	IDcurso string   `json:"idcurso"`
+	Nombre  string   `json:"nombre"`
+	Clases  []string `json:"clases"` // IDs de las clases en formato string
+}
+
+// NewUnidadResponse convierte un modelo Unidad en una respuesta UnidadResponse.
+func NewUnidadResponse(unidad models.Unidad) UnidadResponse {
+	clases := make([]string, len(unidad.Clases))
+	for i, clase := range unidad.Clases {
+		clases[i] = clase.Hex()
+	}
+
+	return UnidadResponse{
+		ID:      unidad.ID.Hex(),
+		IDcurso: unidad.IDcurso.Hex(),
+		Nombre:  unidad.Nombre,
+		Clases:  clases,
+	}
+}
+
+// CrearUnidad define la estructura de la respuesta al crear una unidad.
+type CrearUnidad struct {
+	InsertedID string `json:"inserted_id"`
+}
