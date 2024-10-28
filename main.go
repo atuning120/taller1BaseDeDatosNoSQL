@@ -58,6 +58,9 @@ func main() {
 	usuarioService := services.NewUsuarioService(db)
 	usuarioControlador := controllers.NewUsuarioControlador(usuarioService)
 
+	comentarioService := services.NewComentarioService(db)
+	comentarioControlador := controllers.NewComentarioControlador(comentarioService)
+
 	// Rutas de la API
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "Conexión exitosa"})
@@ -77,9 +80,16 @@ func main() {
 	router.GET("/api/unidades/:id/clases", claseControlador.ObtenerClasesPorUnidad)
 	router.POST("/api/unidades/:id/clases", claseControlador.CrearClaseParaUnidad)
 
+	// Comentarios
+	router.GET("/api/clases/:id/comentarios", comentarioControlador.ObtenerComentariosPorClase)
+	router.POST("/api/clases/:id/comentarios", comentarioControlador.CrearComentarioParaClase)
+
 	// Usuarios
+	router.GET("/api/usuarios", usuarioControlador.ObtenerUsuarios)
+	router.GET("/api/usuarios/:id", usuarioControlador.ObtenerUsuarioPorID)
 	router.POST("/api/usuarios", usuarioControlador.CrearUsuario)
 	router.POST("/api/usuarios/inscripcion", usuarioControlador.InscribirseACurso)
+	router.GET("/api/usuarios/:id/cursos", usuarioControlador.ObtenerCursosInscritos)
 
 	// Iniciar el servidor
 	go func() {

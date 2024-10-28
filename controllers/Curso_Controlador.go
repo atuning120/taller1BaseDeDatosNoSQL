@@ -79,11 +79,11 @@ func (ctrl *CursoControlador) CrearCurso(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "ID del curso"
-// @Success 200 {object} response.UnidadResponse
+// @Success 200 {object} response.CursoResponse
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
-// @Router /api/cursos/{id}/unidades [get]
+// @Router /api/cursos/{id} [get]
 func (ctrl *CursoControlador) ObtenerCursoPorID(c *gin.Context) {
 	id := c.Param("id")
 	curso, err := ctrl.servicio.ObtenerCursoPorID(id)

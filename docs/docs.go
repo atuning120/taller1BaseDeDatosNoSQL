@@ -15,6 +15,104 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/clases/{id}/comentarios": {
+            "get": {
+                "description": "Devuelve todos los comentarios asociados a una clase por su ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comentarios"
+                ],
+                "summary": "Devuelve los comentarios de una clase",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID de la clase",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.ComentarioResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Agrega un comentario a una clase por su ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comentarios"
+                ],
+                "summary": "Crear un comentario para una clase",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID de la clase",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Comentario a crear",
+                        "name": "comentario",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateComentarioRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.ComentarioResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/cursos": {
             "get": {
                 "description": "Devuelve todos los cursos disponibles",
@@ -80,6 +178,56 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.CrearCurso"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cursos/{id}": {
+            "get": {
+                "description": "Devuelve un curso en específico dado su ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cursos"
+                ],
+                "summary": "Devuelve un curso según su ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID del curso",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CursoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
@@ -238,9 +386,159 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/unidades/{id}/clases": {
+            "get": {
+                "description": "Devuelve todas las clases asociadas a una unidad",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Clases"
+                ],
+                "summary": "Devuelve las clases de una unidad",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID de la unidad",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.ClaseResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Agrega una clase a la base de datos asociada a una unidad",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Clases"
+                ],
+                "summary": "Crear una clase para una unidad",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID de la unidad",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Clase a crear",
+                        "name": "clase",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateClaseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CrearClase"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "request.CreateClaseRequest": {
+            "type": "object",
+            "required": [
+                "descripcion",
+                "nombre",
+                "video_url"
+            ],
+            "properties": {
+                "descripcion": {
+                    "type": "string"
+                },
+                "nombre": {
+                    "type": "string"
+                },
+                "video_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateComentarioRequest": {
+            "type": "object",
+            "required": [
+                "autor",
+                "detalle",
+                "me_gusta",
+                "no_me_gusta",
+                "titulo"
+            ],
+            "properties": {
+                "autor": {
+                    "type": "string"
+                },
+                "detalle": {
+                    "type": "string"
+                },
+                "me_gusta": {
+                    "type": "integer"
+                },
+                "no_me_gusta": {
+                    "type": "integer"
+                },
+                "titulo": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateCursoRequest": {
             "type": "object",
             "required": [
@@ -277,6 +575,81 @@ const docTemplate = `{
             "properties": {
                 "valoracion": {
                     "type": "number"
+                }
+            }
+        },
+        "response.ClaseResponse": {
+            "type": "object",
+            "properties": {
+                "adjuntos_url": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "comentarios": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "descripcion": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "me_gusta": {
+                    "type": "integer"
+                },
+                "no_me_gusta": {
+                    "type": "integer"
+                },
+                "nombre": {
+                    "type": "string"
+                },
+                "unidad_id": {
+                    "type": "string"
+                },
+                "video_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ComentarioResponse": {
+            "type": "object",
+            "properties": {
+                "autor": {
+                    "type": "string"
+                },
+                "clase_id": {
+                    "type": "string"
+                },
+                "detalle": {
+                    "type": "string"
+                },
+                "fecha": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "me_gusta": {
+                    "type": "integer"
+                },
+                "no_me_gusta": {
+                    "type": "integer"
+                },
+                "titulo": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.CrearClase": {
+            "type": "object",
+            "properties": {
+                "inserted_id": {
+                    "type": "string"
                 }
             }
         },
@@ -337,27 +710,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "response.UnidadResponse": {
-            "type": "object",
-            "properties": {
-                "clases": {
-                    "description": "IDs de las clases en formato string",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "id": {
-                    "type": "string"
-                },
-                "idcurso": {
-                    "type": "string"
-                },
-                "nombre": {
                     "type": "string"
                 }
             }

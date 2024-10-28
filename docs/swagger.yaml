@@ -1,5 +1,37 @@
 basePath: /
 definitions:
+  request.CreateClaseRequest:
+    properties:
+      descripcion:
+        type: string
+      nombre:
+        type: string
+      video_url:
+        type: string
+    required:
+    - descripcion
+    - nombre
+    - video_url
+    type: object
+  request.CreateComentarioRequest:
+    properties:
+      autor:
+        type: string
+      detalle:
+        type: string
+      me_gusta:
+        type: integer
+      no_me_gusta:
+        type: integer
+      titulo:
+        type: string
+    required:
+    - autor
+    - detalle
+    - me_gusta
+    - no_me_gusta
+    - titulo
+    type: object
   request.CreateCursoRequest:
     properties:
       descripcion:
@@ -24,6 +56,55 @@ definitions:
         type: number
     required:
     - valoracion
+    type: object
+  response.ClaseResponse:
+    properties:
+      adjuntos_url:
+        items:
+          type: string
+        type: array
+      comentarios:
+        items:
+          type: string
+        type: array
+      descripcion:
+        type: string
+      id:
+        type: string
+      me_gusta:
+        type: integer
+      no_me_gusta:
+        type: integer
+      nombre:
+        type: string
+      unidad_id:
+        type: string
+      video_url:
+        type: string
+    type: object
+  response.ComentarioResponse:
+    properties:
+      autor:
+        type: string
+      clase_id:
+        type: string
+      detalle:
+        type: string
+      fecha:
+        type: string
+      id:
+        type: string
+      me_gusta:
+        type: integer
+      no_me_gusta:
+        type: integer
+      titulo:
+        type: string
+    type: object
+  response.CrearClase:
+    properties:
+      inserted_id:
+        type: string
     type: object
   response.CrearCurso:
     properties:
@@ -65,20 +146,6 @@ definitions:
       message:
         type: string
     type: object
-  response.UnidadResponse:
-    properties:
-      clases:
-        description: IDs de las clases en formato string
-        items:
-          type: string
-        type: array
-      id:
-        type: string
-      idcurso:
-        type: string
-      nombre:
-        type: string
-    type: object
   response.UpdateValoracionResponse:
     properties:
       message:
@@ -93,6 +160,71 @@ info:
   title: API de Cursos y Usuarios
   version: "1.0"
 paths:
+  /api/clases/{id}/comentarios:
+    get:
+      consumes:
+      - application/json
+      description: Devuelve todos los comentarios asociados a una clase por su ID
+      parameters:
+      - description: ID de la clase
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.ComentarioResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Devuelve los comentarios de una clase
+      tags:
+      - Comentarios
+    post:
+      consumes:
+      - application/json
+      description: Agrega un comentario a una clase por su ID
+      parameters:
+      - description: ID de la clase
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Comentario a crear
+        in: body
+        name: comentario
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateComentarioRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.ComentarioResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Crear un comentario para una clase
+      tags:
+      - Comentarios
   /api/cursos:
     get:
       consumes:
@@ -141,6 +273,39 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Crear un curso
+      tags:
+      - Cursos
+  /api/cursos/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Devuelve un curso en específico dado su ID
+      parameters:
+      - description: ID del curso
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CursoResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Devuelve un curso según su ID
       tags:
       - Cursos
   /api/cursos/{id}/unidades:
@@ -241,4 +406,73 @@ paths:
       summary: Actualiza la valoración de un curso
       tags:
       - Cursos
+  /api/unidades/{id}/clases:
+    get:
+      consumes:
+      - application/json
+      description: Devuelve todas las clases asociadas a una unidad
+      parameters:
+      - description: ID de la unidad
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.ClaseResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Devuelve las clases de una unidad
+      tags:
+      - Clases
+    post:
+      consumes:
+      - application/json
+      description: Agrega una clase a la base de datos asociada a una unidad
+      parameters:
+      - description: ID de la unidad
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Clase a crear
+        in: body
+        name: clase
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateClaseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CrearClase'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Crear una clase para una unidad
+      tags:
+      - Clases
 swagger: "2.0"

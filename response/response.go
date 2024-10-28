@@ -2,6 +2,7 @@ package response
 
 import (
 	"go-API/models"
+	"time"
 )
 
 // CursoResponse define la estructura de la respuesta para un curso.
@@ -82,4 +83,68 @@ func NewUnidadResponse(unidad models.Unidad) UnidadResponse {
 // CrearUnidad define la estructura de la respuesta al crear una unidad.
 type CrearUnidad struct {
 	InsertedID string `json:"inserted_id"`
+}
+
+// ClaseResponse define la estructura de la respuesta para una clase.
+type ClaseResponse struct {
+	ID           string   `json:"id"`
+	UnidadID     string   `json:"unidad_id"`
+	Nombre       string   `json:"nombre"`
+	Descripcion  string   `json:"descripcion"`
+	VideoURL     string   `json:"video_url"`
+	Adjuntos_url []string `json:"adjuntos_url"`
+	MeGusta      int      `json:"me_gusta"`
+	NoMeGusta    int      `json:"no_me_gusta"`
+	Comentarios  []string `json:"comentarios"`
+}
+
+// NewClaseResponse convierte un modelo Clase en una respuesta ClaseResponse.
+func NewClaseResponse(clase models.Clase) ClaseResponse {
+	comentarios := make([]string, len(clase.Comentarios))
+	for i, comentario := range clase.Comentarios {
+		comentarios[i] = comentario.Hex()
+	}
+
+	return ClaseResponse{
+		ID:           clase.ID.Hex(),
+		UnidadID:     clase.UnidadID.Hex(),
+		Nombre:       clase.Nombre,
+		Descripcion:  clase.Descripcion,
+		VideoURL:     clase.VideoURL,
+		Adjuntos_url: clase.Adjuntos_url, // Correct field name from models.Clase
+		MeGusta:      clase.MeGusta,
+		NoMeGusta:    clase.NoMeGusta,
+		Comentarios:  comentarios,
+	}
+}
+
+// CrearClase define la estructura de la respuesta al crear una clase.
+type CrearClase struct {
+	InsertedID string `json:"inserted_id"`
+}
+
+// ComentarioResponse define la estructura de la respuesta para un comentario.
+type ComentarioResponse struct {
+	ID        string    `json:"id"`
+	ClaseID   string    `json:"clase_id"`
+	Autor     string    `json:"autor"`
+	Fecha     time.Time `json:"fecha"`
+	Titulo    string    `json:"titulo"`
+	Detalle   string    `json:"detalle"`
+	MeGusta   int       `json:"me_gusta"`
+	NoMeGusta int       `json:"no_me_gusta"`
+}
+
+// NewComentarioResponse convierte un modelo Comentario en una respuesta ComentarioResponse.
+func NewComentarioResponse(comentario models.Comentario) ComentarioResponse {
+	return ComentarioResponse{
+		ID:        comentario.ID.Hex(),
+		ClaseID:   comentario.ClaseID.Hex(),
+		Autor:     comentario.Autor,
+		Fecha:     comentario.Fecha,
+		Titulo:    comentario.Titulo,
+		Detalle:   comentario.Detalle,
+		MeGusta:   comentario.MeGusta,
+		NoMeGusta: comentario.NoMeGusta,
+	}
 }
