@@ -19,7 +19,15 @@ func NewUsuarioControlador(servicio *services.UsuarioService) *UsuarioControlado
 	return &UsuarioControlador{servicio: servicio}
 }
 
-// ObtenerUnidades obtiene todos los usuarios
+// ObtenerUsuarios obtiene todos los usuarios.
+// @Summary Devuelve todos los usuarios
+// @Description Devuelve la lista completa de usuarios registrados
+// @Tags Usuarios
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.Usuario
+// @Failure 500 {object} response.ErrorResponse
+// @Router /api/usuarios [get]
 func (uc *UsuarioControlador) ObtenerUsuarios(c *gin.Context) {
 	usuarios, err := uc.servicio.ObtenerUsuarios()
 	if err != nil {
@@ -33,6 +41,16 @@ func (uc *UsuarioControlador) ObtenerUsuarios(c *gin.Context) {
 }
 
 // CrearUsuario maneja la creación de un nuevo usuario.
+// @Summary Crear un nuevo usuario
+// @Description Agrega un usuario a la base de datos
+// @Tags Usuarios
+// @Accept json
+// @Produce json
+// @Param usuario body request.CreateUsuarioRequest true "Usuario a crear"
+// @Success 201 {object} models.Usuario
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /api/usuarios [post]
 func (uc *UsuarioControlador) CrearUsuario(c *gin.Context) {
 	var usuario models.Usuario
 
@@ -53,6 +71,15 @@ func (uc *UsuarioControlador) CrearUsuario(c *gin.Context) {
 }
 
 // ObtenerUsuarioPorID obtiene un usuario por su ID.
+// @Summary Obtener un usuario por ID
+// @Description Devuelve un usuario en específico por su ID
+// @Tags Usuarios
+// @Accept json
+// @Produce json
+// @Param id path string true "ID del usuario"
+// @Success 200 {object} models.Usuario
+// @Failure 500 {object} response.ErrorResponse
+// @Router /api/usuarios/{id} [get]
 func (uc *UsuarioControlador) ObtenerUsuarioPorID(c *gin.Context) {
 	id := c.Param("id")
 
@@ -68,6 +95,16 @@ func (uc *UsuarioControlador) ObtenerUsuarioPorID(c *gin.Context) {
 }
 
 // InscribirseACurso permite que un usuario se inscriba en un curso.
+// @Summary Inscribir un usuario en un curso
+// @Description Inscribe a un usuario en un curso específico
+// @Tags Usuarios
+// @Accept json
+// @Produce json
+// @Param inscripcion body request.InscripcionRequest true "Datos de inscripción"
+// @Success 200 {object} response.InscripcionResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /api/usuarios/inscripcion [post]
 func (uc *UsuarioControlador) InscribirseACurso(c *gin.Context) {
 	var inscripcion struct {
 		UsuarioID string `json:"usuario_id"`
@@ -91,6 +128,15 @@ func (uc *UsuarioControlador) InscribirseACurso(c *gin.Context) {
 }
 
 // ObtenerCursosInscritos obtiene los cursos en los que un usuario está inscrito.
+// @Summary Obtener cursos inscritos de un usuario
+// @Description Devuelve la lista de cursos en los que un usuario está inscrito
+// @Tags Usuarios
+// @Accept json
+// @Produce json
+// @Param id path string true "ID del usuario"
+// @Success 200 {array} models.Curso
+// @Failure 500 {object} response.ErrorResponse
+// @Router /api/usuarios/{id}/cursos [get]
 func (uc *UsuarioControlador) ObtenerCursosInscritos(c *gin.Context) {
 	id := c.Param("id")
 

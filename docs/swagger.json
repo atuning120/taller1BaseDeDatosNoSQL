@@ -484,9 +484,268 @@
                     }
                 }
             }
+        },
+        "/api/usuarios": {
+            "get": {
+                "description": "Devuelve la lista completa de usuarios registrados",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Devuelve todos los usuarios",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Usuario"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Agrega un usuario a la base de datos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Crear un nuevo usuario",
+                "parameters": [
+                    {
+                        "description": "Usuario a crear",
+                        "name": "usuario",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateUsuarioRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Usuario"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/usuarios/inscripcion": {
+            "post": {
+                "description": "Inscribe a un usuario en un curso específico",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Inscribir un usuario en un curso",
+                "parameters": [
+                    {
+                        "description": "Datos de inscripción",
+                        "name": "inscripcion",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.InscripcionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InscripcionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/usuarios/{id}": {
+            "get": {
+                "description": "Devuelve un usuario en específico por su ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Obtener un usuario por ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID del usuario",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Usuario"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/usuarios/{id}/cursos": {
+            "get": {
+                "description": "Devuelve la lista de cursos en los que un usuario está inscrito",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Obtener cursos inscritos de un usuario",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID del usuario",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Curso"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "models.Curso": {
+            "type": "object",
+            "properties": {
+                "cant_usuarios": {
+                    "type": "integer"
+                },
+                "comentarios": {
+                    "description": "Lista de IDs de comentarios",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "descripcion": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "imagen_url": {
+                    "type": "string"
+                },
+                "nombre": {
+                    "type": "string"
+                },
+                "unidades": {
+                    "description": "Lista de IDs de unidades",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "valoracion": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.Usuario": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "inscritos": {
+                    "description": "IDs de cursos inscritos",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "nombre": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateClaseRequest": {
             "type": "object",
             "required": [
@@ -557,6 +816,36 @@
             ],
             "properties": {
                 "nombre": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateUsuarioRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "nombre"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "nombre": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.InscripcionRequest": {
+            "type": "object",
+            "required": [
+                "curso_id",
+                "usuario_id"
+            ],
+            "properties": {
+                "curso_id": {
+                    "type": "string"
+                },
+                "usuario_id": {
                     "type": "string"
                 }
             }
@@ -701,6 +990,14 @@
             }
         },
         "response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.InscripcionResponse": {
             "type": "object",
             "properties": {
                 "message": {

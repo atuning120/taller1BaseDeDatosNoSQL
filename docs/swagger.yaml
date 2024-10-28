@@ -1,5 +1,44 @@
 basePath: /
 definitions:
+  models.Curso:
+    properties:
+      cant_usuarios:
+        type: integer
+      comentarios:
+        description: Lista de IDs de comentarios
+        items:
+          type: string
+        type: array
+      descripcion:
+        type: string
+      id:
+        type: string
+      imagen_url:
+        type: string
+      nombre:
+        type: string
+      unidades:
+        description: Lista de IDs de unidades
+        items:
+          type: string
+        type: array
+      valoracion:
+        type: number
+    type: object
+  models.Usuario:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      inscritos:
+        description: IDs de cursos inscritos
+        items:
+          type: string
+        type: array
+      nombre:
+        type: string
+    type: object
   request.CreateClaseRequest:
     properties:
       descripcion:
@@ -49,6 +88,26 @@ definitions:
         type: string
     required:
     - nombre
+    type: object
+  request.CreateUsuarioRequest:
+    properties:
+      email:
+        type: string
+      nombre:
+        type: string
+    required:
+    - email
+    - nombre
+    type: object
+  request.InscripcionRequest:
+    properties:
+      curso_id:
+        type: string
+      usuario_id:
+        type: string
+    required:
+    - curso_id
+    - usuario_id
     type: object
   request.UpdateValoracionRequest:
     properties:
@@ -142,6 +201,11 @@ definitions:
         type: number
     type: object
   response.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  response.InscripcionResponse:
     properties:
       message:
         type: string
@@ -475,4 +539,136 @@ paths:
       summary: Crear una clase para una unidad
       tags:
       - Clases
+  /api/usuarios:
+    get:
+      consumes:
+      - application/json
+      description: Devuelve la lista completa de usuarios registrados
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Usuario'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Devuelve todos los usuarios
+      tags:
+      - Usuarios
+    post:
+      consumes:
+      - application/json
+      description: Agrega un usuario a la base de datos
+      parameters:
+      - description: Usuario a crear
+        in: body
+        name: usuario
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateUsuarioRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Usuario'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Crear un nuevo usuario
+      tags:
+      - Usuarios
+  /api/usuarios/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Devuelve un usuario en específico por su ID
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Usuario'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Obtener un usuario por ID
+      tags:
+      - Usuarios
+  /api/usuarios/{id}/cursos:
+    get:
+      consumes:
+      - application/json
+      description: Devuelve la lista de cursos en los que un usuario está inscrito
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Curso'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Obtener cursos inscritos de un usuario
+      tags:
+      - Usuarios
+  /api/usuarios/inscripcion:
+    post:
+      consumes:
+      - application/json
+      description: Inscribe a un usuario en un curso específico
+      parameters:
+      - description: Datos de inscripción
+        in: body
+        name: inscripcion
+        required: true
+        schema:
+          $ref: '#/definitions/request.InscripcionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InscripcionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Inscribir un usuario en un curso
+      tags:
+      - Usuarios
 swagger: "2.0"

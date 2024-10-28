@@ -32,3 +32,15 @@ type CreateComentarioRequest struct {
 	MeGusta   int    `json:"me_gusta" binding:"required"`
 	NoMeGusta int    `json:"no_me_gusta" binding:"required"`
 }
+
+// InscripcionRequest define los parámetros necesarios para inscribir a un usuario en un curso.
+type InscripcionRequest struct {
+	UsuarioID string `json:"usuario_id" binding:"required"`
+	CursoID   string `json:"curso_id" binding:"required"`
+}
+
+// CreateUsuarioRequest define los campos necesarios para crear un usuario.
+type CreateUsuarioRequest struct {
+	Nombre string `json:"nombre" binding:"required"`
+	Email  string `json:"email" binding:"required,email"`
+}

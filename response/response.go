@@ -148,3 +148,8 @@ func NewComentarioResponse(comentario models.Comentario) ComentarioResponse {
 		NoMeGusta: comentario.NoMeGusta,
 	}
 }
+
+// InscripcionResponse define la estructura de la respuesta al inscribir a un usuario.
+type InscripcionResponse struct {
+	Message string `json:"message"`
+}
